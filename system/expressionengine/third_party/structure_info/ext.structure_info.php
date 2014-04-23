@@ -126,7 +126,7 @@ class Structure_info_ext {
                     // only return the parent for listings ...
                     if (array_key_exists($entry_info['entry_id'], $structure_listing_ids))
                     {
-                        $path_str .= ' '.$structure_path_separator.' ';
+                        $path_str .= ' '.$structure_path_separator.' '.$entry_info['title'];
                     }
 
                     $structure_info[Structure_info_ext::TAG_PREFIX.'path'] = $path_str;
