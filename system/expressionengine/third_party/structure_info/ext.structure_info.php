@@ -31,7 +31,7 @@ class Structure_info_ext {
     public $docs_url    = 'http://wedoaddons.com/addon/structure-info';
     public $name      = 'Structure Info';
     public $settings_exist  = 'n';
-    public $version     = '1.0.0';
+    public $version     = '1.1';
     const TAG_PREFIX = 'structure_info:';
 
     /**
@@ -87,6 +87,16 @@ class Structure_info_ext {
         $site_pages_all = ee()->config->item('site_pages');
         $site_pages = $site_pages_all[ee()->config->item('site_id')];
 
+        $include_structure_path = ee()->TMPL->fetch_param('include_structure_path') == 'yes';
+        $structure_path_separator = ee()->TMPL->fetch_param('structure_path_separator', '>');
+
+        $structure_listing_ids = array();
+        if($include_structure_path) {
+            require_once PATH_THIRD.'structure/sql.structure.php';
+            $structure_sql = new Sql_structure();
+            $structure_listing_ids = $structure_sql->get_listing_entry_ids();
+        }
+
         foreach($result as $result_index => $entry_info) {
 
             $structure_info = array(
@@ -102,14 +112,39 @@ class Structure_info_ext {
                 $segments = explode('/',$page_uri);
                 $last_segment = $segments[count($segments)-1];
                 $structure_info[Structure_info_ext::TAG_PREFIX.'page_last_segment'] = $last_segment;
+
+                if($include_structure_path) {
+                    $path = $structure_sql->get_single_path($entry_info['entry_id']);
+
+                    $path_str = '';
+                    foreach($path as $path_entry) {
+                        $path_str .= $path_entry['title'] . ' '.$structure_path_separator.' ';
+                    }
+                    $path_str = substr($path_str, 0, strlen($path_str)-3);
+
+                    // add the entry to the end if it is a listing (for some reason Structure will
+                    // only return the parent for listings ...
+                    if (array_key_exists($entry_info['entry_id'], $structure_listing_ids))
+                    {
+                        $path_str .= ' '.$structure_path_separator.' ';
+                    }
+
+                    $structure_info[Structure_info_ext::TAG_PREFIX.'path'] = $path_str;
+                }
+
             }
 
             $result[$result_index] = array_merge($result[$result_index], $structure_info);
         }
 
-
         return $result;
     }
+
+
+    /**
+     * Get
+     */
+
 
     // ----------------------------------------------------------------------
 
