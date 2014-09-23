@@ -97,6 +97,10 @@ class Structure_info_ext {
             $structure_listing_ids = $structure_sql->get_listing_entry_ids();
         }
 
+        if (ee()->extensions->last_call !== FALSE) {
+            $result = ee()->extensions->last_call;
+        }
+
         foreach($result as $result_index => $entry_info) {
 
             $structure_info = array(
